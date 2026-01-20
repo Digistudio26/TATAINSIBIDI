@@ -1,1 +1,1 @@
-x
+grep -wc "not" hay.txt
