@@ -1,9 +1,5 @@
-package main
+package sprint
 
-import "fmt"
-
-// Accumulate returns the sum of all numbers from 0 to n if n is positive.
-// If n is negative, it returns 0.
 func Accumulate(n int) int {
 	if n < 0 {
 		return 0
@@ -17,9 +13,5 @@ func Accumulate(n int) int {
 	return sum
 }
 
-func main() {
-	fmt.Println(Accumulate(4))  // Output: 10
-	fmt.Println(Accumulate(0))  // Output: 0
-	fmt.Println(Accumulate(-5)) // Output: 0
-}     
+
 
