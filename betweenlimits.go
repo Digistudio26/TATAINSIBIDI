@@ -16,7 +16,3 @@ func BetweenLimits(from, to rune) string {
 	}
 
 	return b
-}
-func main() {
-	fmt.Println(BetweenLimits('j', 'f'))
-}
