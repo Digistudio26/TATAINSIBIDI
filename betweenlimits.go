@@ -1,26 +1,19 @@
-package sprint
+package main 
 
+import "strings"
 
-func Doop(a int, op string, b int) int {
-	switch op {
-	case "+":
-		return a + b
-	case "-":
-		return a - b
-	case "*":
-		return a * b
-	case "/":
-		if b == 0 {
-			return 0
-		}
-		return a / b
-	case "%":
-		if b == 0 {
-			return 0
-		}
-		return a % b
-	default:
-		return 0
+func BetweenLimits(from, to rune) string {
+	// Ensure correct order
+	if from > to {
+		from, to = to, from
 	}
-}
 
+	var b strings.Builder
+
+	// Start after `from`, stop before `to`
+	for r := from + 1; r < to; r++ {
+		b.WriteRune(r)
+	}
+
+	return b.String()
+}
