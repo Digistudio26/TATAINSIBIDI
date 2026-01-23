@@ -1,9 +1,6 @@
-
 package main
 
-import (
-	"strings"
-)
+import "fmt"
 
 func BetweenLimits(from, to rune) string {
 	// Ensure correct order
@@ -11,12 +8,15 @@ func BetweenLimits(from, to rune) string {
 		from, to = to, from
 	}
 
-	var b strings.Builder
+	var b string
 
 	// Start after `from`, stop before `to`
 	for r := from + 1; r < to; r++ {
-		b.WriteRune(r)
+		 b = b + string(rune(r))
 	}
 
-	return b.String()
+	return b
+}
+func main() {
+	fmt.Println(BetweenLimits('j', 'f'))
 }
