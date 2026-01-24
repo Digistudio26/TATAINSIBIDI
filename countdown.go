@@ -1,5 +1,7 @@
 package main
+
 import "fmt"
+
 
 
 func Countdown(n int) string {
@@ -19,8 +21,6 @@ func Countdown(n int) string {
 
 	return result
 }
-
-
 
 
 
