@@ -1,65 +1,19 @@
+
 package main
-
-import "fmt"
-
 
 
 func Countdown(n int) string {
-	result := ""
+	result := "" // declare result first
 
 	for i := n; i > 0; i -= 2 {
-		if result != "" {
-			result += ", "
-		}
-		result += fmt.Sprintf("%d", i)
+		result += string(rune(i)) + ", "
+		//result += fmt.Sprintf("%d, ", i) // convert i to string and add comma
 	}
 
-	if result != "" {
-		result += ", "
-	}
-	result += "0!"
+	result += "0!" 
+	return result// append the final zero
 
-	return result
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
