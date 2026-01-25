@@ -1,11 +1,8 @@
 
 package main
 
-import "fmt"
 
-func main() {
-	fmt.Println("")
-}
+
 
 func AlphaNumber(n int) string {
 	if n == 0 {
