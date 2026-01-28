@@ -1,9 +1,8 @@
 package main
 
-
 func SortIntegerTable(table[]int) []int {
 	
-	 Sort.Ints(table)
+	 sort.Ints(table)
     
 	   return table
 }
