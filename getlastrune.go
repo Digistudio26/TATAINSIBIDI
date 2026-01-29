@@ -2,8 +2,9 @@ package main
 
 
 
-func GetLastRune (s string) rune {
+package main
 
-	new_array := []rune{s}
-	return new_array[len(new_array) - 1]
+func GetLastRune(s string) rune {
+	runes := []rune(s)
+	return runes[len(runes)-1]
 }
