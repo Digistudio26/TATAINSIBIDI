@@ -1,6 +1,15 @@
-package main 
+package main
 
-func FirstChar(s string) rune {
-	return [] rune(s) [0]
+
+
+
+func GetFirstRune(s string) rune {
+	for _, r := range s {
+		return r
+	}
+	return 0
 }
- 
+
+func main() {
+	fmt.Println(GetFirstRune("kood"))
+}
