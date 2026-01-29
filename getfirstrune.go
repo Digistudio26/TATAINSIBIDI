@@ -2,6 +2,8 @@ package main
 
 
 
+package main
+
 func GetFirstRune(s string) rune {
 	for _, r := range s {
 		return r
