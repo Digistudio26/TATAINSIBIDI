@@ -1,7 +1,6 @@
-package main 
+package main
 
-
-func NRune(s string, i index) rune {
+func NRune(s string, i int) rune {
 	runes := []rune(s)
-	return  []rune(i)
+	return runes[i]
 }
