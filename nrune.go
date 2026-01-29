@@ -2,5 +2,6 @@ package main
 
 
 func NRune(s string, i index) rune {
-	return : []rune(i)
+	runes := []rune(s)
+	return  []rune(i)
 }
