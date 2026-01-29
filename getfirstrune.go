@@ -1,16 +1,9 @@
-package main
-
-
-
-package main
-
+package sprint
 func GetFirstRune(s string) rune {
 	for _, r := range s {
+		Println(r)
 		return r
 	}
 	return 0
 }
 
-func main() {
-	fmt.Println(GetFirstRune("kood"))
-}
