@@ -1,7 +1,6 @@
 package main
 
-
-func strSplitBy(s, sep string) []string {
+func StrSplitBy(s, sep string) []string {
 	if sep == "" {
 		return []string{s}
 	}
