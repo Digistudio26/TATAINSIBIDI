@@ -1,6 +1,5 @@
 package main
-
-
+import "fmt"
 
 type Point struct {
 	X    float32
@@ -9,7 +8,7 @@ type Point struct {
 }
 
 func PointText(p Point) Point {
-		p.Text= fmt.Sprintf("Text at (%f, %f)", p.X, p.Y)
+		p.Text= fmt.Sprintf("Text   at (%f, %f)", p.X, p.Y)
 return p
 	
 } 
