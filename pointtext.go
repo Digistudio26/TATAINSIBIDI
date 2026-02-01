@@ -1,4 +1,4 @@
-package sprint
+package main
 
 
 type Point struct {
