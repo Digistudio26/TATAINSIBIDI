@@ -10,7 +10,6 @@ import (
 	"time"
 )
 
-// ANSI Colors
 const (
 	Reset  = "\033[0m"
 	Red    = "\033[31m"
@@ -19,12 +18,15 @@ const (
 	Cyan   = "\033[36m"
 )
 
-const selectionCount = 5
+const (
+	selectionsPerChance = 5
+	maxChances          = 5
+)
 
 type Player struct {
 	Name   string
-	Wins   int
 	Games  int
+	Wins   int
 	Scores int
 }
 
@@ -36,7 +38,7 @@ func main() {
 
 	fmt.Print("Enter your heroic name: ")
 	scanner.Scan()
-	name := scanner.Text()
+	name := strings.TrimSpace(scanner.Text())
 	if name == "" {
 		name = "Adventurer"
 	}
@@ -44,13 +46,12 @@ func main() {
 	player := Player{Name: name}
 
 	for {
-		// Menu options
-		fmt.Println("\n🗂 What would you like to do next?")
-		fmt.Println("1️⃣ Play a round")
-		fmt.Println("2️⃣ View scores")
-		fmt.Println("3️⃣ Help / Instructions")
-		fmt.Println("4️⃣ Free try (bonus round)")
-		fmt.Println("5️⃣ Exit game")
+		fmt.Println("\nMENU")
+		fmt.Println("1) Play round")
+		fmt.Println("2) View scores")
+		fmt.Println("3) Help / Instructions")
+		fmt.Println("4) Free try")
+		fmt.Println("5) Exit")
 		fmt.Print("Enter choice (1-5): ")
 
 		scanner.Scan()
@@ -58,18 +59,19 @@ func main() {
 
 		switch choice {
 		case "1":
-			playGameRound(&player, scanner)
+			playRound(&player, scanner)
 		case "2":
 			showScores(&player)
 		case "3":
 			showHelp()
 		case "4":
-			freeTry(&player, scanner)
+			fmt.Println("\nFREE TRY ROUND")
+			playRound(&player, scanner)
 		case "5":
 			fmt.Println(Cyan + "Farewell, brave soul!" + Reset)
 			return
 		default:
-			fmt.Println(Red + "Invalid choice! Please enter 1-5." + Reset)
+			fmt.Println(Red + "Invalid choice. Enter 1-5." + Reset)
 		}
 	}
 }
@@ -83,7 +85,88 @@ func displayBanner() {
    ██║   ██║  ██║███████║██║  ██║
    ╚═╝   ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝
 ` + Reset)
-	fmt.Println(Cyan + "🌟 Welcome to LETTER QUEST 🌟" + Reset)
+	fmt.Println(Cyan + "WELCOME TO LETTER QUEST" + Reset)
+}
+
+func showHelp() {
+	fmt.Println("\nHELP / INSTRUCTIONS")
+	fmt.Println("Match alphanumeric values and win a prize!")
+	fmt.Println("\nAlphabet Mapping:")
+	fmt.Println("A -> 1, B -> 2, C -> 3, ...")
+	fmt.Println("X -> 24, Y -> 25, Z -> 26")
+	fmt.Println("\nHow to Play:")
+	fmt.Println("• You get 5 chances per round.")
+	fmt.Println("• Each chance allows 5 number selections.")
+	fmt.Println("• If a number matches its letter value, you score.")
+	fmt.Println("• 3 or more total matches = WIN (score multiplied by 5).")
+	fmt.Println("• Multiples of 5 or number 26 give royal blessings.")
+}
+
+func showScores(player *Player) {
+	fmt.Printf("\nSTATS FOR %s\n", player.Name)
+	fmt.Printf("Games played: %d\n", player.Games)
+	fmt.Printf("Wins: %d\n", player.Wins)
+	fmt.Printf("Total score: %d\n", player.Scores)
+}
+
+func playRound(player *Player, scanner *bufio.Scanner) {
+	player.Games++
+
+	letters, numbers := generateSets()
+	shuffle(letters)
+	shuffle(numbers)
+
+	totalCorrect := 0
+
+	for chance := 1; chance <= maxChances; chance++ {
+		fmt.Printf("\nChance %d of %d — select 5 numbers: ", chance, maxChances)
+		scanner.Scan()
+		input := strings.Fields(scanner.Text())
+
+		if len(input) != selectionsPerChance {
+			fmt.Println(Red + "You must select exactly 5 numbers." + Reset)
+			chance--
+			continue
+		}
+
+		selections := make([]int, 0)
+		for _, v := range input {
+			n, err := strconv.Atoi(v)
+			if err != nil || n < 1 || n > 26 {
+				fmt.Println(Red + "Invalid number entered." + Reset)
+				selections = nil
+				break
+			}
+			selections = append(selections, n)
+		}
+
+		if selections == nil {
+			chance--
+			continue
+		}
+
+		correct := revealLetters(letters, numbers, selections)
+		totalCorrect += correct
+	}
+
+	score := totalCorrect * 10
+
+	if totalCorrect >= 3 {
+		player.Wins++
+		score *= 5
+		player.Scores += score
+		fmt.Println(Green + "\nROYAL BLESSINGS!" + Reset)
+		displayAfricanMask()
+		deities := []string{"Ogun", "Shango", "Yemoja", "Orunmila", "Obatala"}
+		fmt.Printf(Green+"%s blesses you, %s! Keep playing!\n"+Reset,
+			deities[rand.Intn(len(deities))], player.Name)
+	} else {
+		player.Scores += score
+		fmt.Println(Red + "\nYou lose, try again!" + Reset)
+	}
+
+	fmt.Printf("\nTotal matches: %d\n", totalCorrect)
+	fmt.Printf("Round score: %d | Total score: %d\n", score, player.Scores)
 }
 
 func generateSets() ([]rune, []int) {
@@ -96,133 +179,41 @@ func generateSets() ([]rune, []int) {
 	return letters, numbers
 }
 
-func shuffle[T any](slice []T) {
-	rand.Shuffle(len(slice), func(i, j int) {
-		slice[i], slice[j] = slice[j], slice[i]
+func shuffle[T any](s []T) {
+	rand.Shuffle(len(s), func(i, j int) {
+		s[i], s[j] = s[j], s[i]
 	})
 }
 
-func generateMasks(n int) []string {
-	symbols := []string{"[?]", "[#]", "[*]", "[!]", "[%]", "[@]", "[&]", "[~]"}
-	masks := make([]string, n)
-	for i := 0; i < n; i++ {
-		masks[i] = symbols[rand.Intn(len(symbols))]
-	}
-	return masks
-}
-
-func playGameRound(player *Player, scanner *bufio.Scanner) {
-	fmt.Println("\n🎯 Select 5 numbers (1-26). Match the hidden letters to win treasures!")
-	letters, numbers := generateSets()
-	shuffle(letters)
-	shuffle(numbers)
-	masks := generateMasks(len(letters))
-	playRound(player, scanner, letters, numbers, masks)
-}
-
-func freeTry(player *Player, scanner *bufio.Scanner) {
-	fmt.Println("\n🎁 FREE TRY BONUS ROUND! You get extra chances to score!")
-	letters, numbers := generateSets()
-	shuffle(letters)
-	shuffle(numbers)
-	masks := generateMasks(len(letters))
-	playRound(player, scanner, letters, numbers, masks)
-}
-
-func showScores(player *Player) {
-	fmt.Printf("\n📊 %s's Stats:\n", player.Name)
-	fmt.Printf("Games played: %d\n", player.Games)
-	fmt.Printf("Wins: %d\n", player.Wins)
-	fmt.Printf("Total score: %d\n", player.Scores)
-}
-
-func showHelp() {
-	fmt.Println("\n📝 HELP / INSTRUCTIONS")
-	fmt.Println("1. Pick exactly 5 numbers from 1 to 26.")
-	fmt.Println("2. If your numbers match hidden letters, you score points.")
-	fmt.Println("3. Matching 3 or more numbers multiplies your round score by 5 and shows an African mask!")
-	fmt.Println("4. Numbers divisible by 5 or number 26 give a royal blessing!")
-	fmt.Println("5. After each round, choose your next action from the menu.")
-}
-
-func playRound(player *Player, scanner *bufio.Scanner, letters []rune, numbers []int, masks []string) {
-	player.Games++
-	fmt.Print("Your selections: ")
-	scanner.Scan()
-	input := strings.Fields(scanner.Text())
-	if len(input) != selectionCount {
-		fmt.Println(Red + "You must pick exactly 5 numbers!" + Reset)
-		return
-	}
-
-	selections := make([]int, selectionCount)
-	for i, v := range input {
-		num, err := strconv.Atoi(v)
-		if err != nil || num < 1 || num > 26 {
-			fmt.Println(Red+"Invalid number:", v+Reset)
-			return
-		}
-		selections[i] = num
-	}
-
+func revealLetters(letters []rune, numbers []int, picks []int) int {
 	correct := 0
-	fmt.Println("\n🔍 Revealing hidden letters:")
-	for i, letter := range letters {
-		num := numbers[i]
-		selected := false
-		for _, s := range selections {
-			if s == num {
-				selected = true
+	fmt.Println("\nRevealing letters:")
+	for i, l := range letters {
+		n := numbers[i]
+		for _, p := range picks {
+			if p == n {
+				if n == int(l-'A')+1 {
+					fmt.Printf(Green+"%c -> %d\n"+Reset, l, n)
+					correct++
+				} else {
+					fmt.Printf(Yellow+"%c -> %d\n"+Reset, l, n)
+				}
 				break
 			}
 		}
-		display := fmt.Sprintf("%c->%d", letter, num)
-		if selected && num == int(letter-'A')+1 {
-			correct++
-			fmt.Println(Green + display + Reset)
-		} else if selected {
-			fmt.Println(Yellow + display + Reset)
-		} else {
-			fmt.Println(display)
-		}
 	}
-
-	// Base score: 10 points per correct number
-	roundScore := correct * 10
-
-	// Winning logic
-	if correct >= 3 {
-		player.Wins++
-		roundScore *= 5
-		fmt.Println(Green + "\n🎉 CONGRATULATIONS! You won this round!" + Reset)
-		displayAfricanMask()
-	}
-
-	player.Scores += roundScore
-	fmt.Printf("\nYou matched %d out of 5 numbers\n", correct)
-	fmt.Printf("Round score: %d | Total score: %d\n", roundScore, player.Scores)
-
-	// Bonus for special numbers
-	for _, n := range selections {
-		if n%5 == 0 || n == 26 {
-			fmt.Println(Cyan + "✨ You received a royal blessing!" + Reset)
-		}
-	}
+	return correct
 }
 
-// African mask ASCII art
 func displayAfricanMask() {
-	mask := `
+	fmt.Println(Yellow + `
    .-''''-.
   /  .--.  \
- /  /    \  \
  |  |    |  |
  |  |.-""-. |
- ///\::::.\\\
-||| ::/  \:: ;|
-||| ::\__/:: ;|
- \\\ '::::' ///
-  '-....-'
-`
-	fmt.Println(Yellow + mask + Reset)
+ |||  ____  |
+ ||| |____| |
+  \\\        /
+   '-......-'
+` + Reset)
 }
