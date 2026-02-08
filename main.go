@@ -19,7 +19,6 @@ const (
 	Cyan   = "\033[36m"
 )
 
-const maxChances = 5
 const selectionCount = 5
 
 type Player struct {
@@ -33,22 +32,19 @@ func main() {
 	rand.Seed(time.Now().UnixNano())
 	scanner := bufio.NewScanner(os.Stdin)
 
-	displayWelcomeBanner()
+	displayBanner()
 
-	fmt.Print("Enter your name, brave learner: ")
+	fmt.Print("Enter your heroic name: ")
 	scanner.Scan()
-	username := scanner.Text()
-	if username == "" {
-		username = "Traveler"
+	name := scanner.Text()
+	if name == "" {
+		name = "Adventurer"
 	}
 
-	player := Player{Name: username}
+	player := Player{Name: name}
 
 	for {
-		fmt.Println("\nHow to play: Select 5 numbers corresponding to hidden letters (A->1 ... Z->26).")
-		fmt.Println("3 correct → win, 4 correct → ancestral royalty, 5 correct → kingship.")
-		fmt.Println("Special numbers 5,10,15,20,25,26 → royal blessing!")
-
+		fmt.Println("\n🎯 Select 5 numbers (1-26). Match the hidden letters to win treasures!")
 		letters, numbers := generateSets()
 		shuffle(letters)
 		shuffle(numbers)
@@ -56,35 +52,29 @@ func main() {
 
 		playRound(&player, scanner, letters, numbers, masks)
 
-		fmt.Println("\nDo you want to play again? (yes/no):")
-		if !scanner.Scan() || strings.ToLower(strings.TrimSpace(scanner.Text())) != "yes" {
-			fmt.Println(Cyan + "Thank you for playing! Return for revenge and glory!" + Reset)
+		fmt.Print("\nDo you wish to venture again? (yes/no): ")
+		scanner.Scan()
+		if strings.ToLower(strings.TrimSpace(scanner.Text())) != "yes" {
+			fmt.Println(Cyan + "Farewell, brave soul!" + Reset)
 			break
 		}
-
-		shuffle(letters)
-		shuffle(numbers)
 	}
-	fmt.Printf("Games played: %d, Wins: %d, Total score: %d\n", player.Games, player.Wins, player.Scores)
+
+	fmt.Printf("\nGames played: %d | Wins: %d | Total Score: %d\n", player.Games, player.Wins, player.Scores)
 }
 
-// ---------------- BANNERS ----------------
-func displayWelcomeBanner() {
-	displayTata2D()
-	fmt.Println(Cyan + "🎮 Welcome to INSIBIDICODE 🎮" + Reset)
+func displayBanner() {
+	fmt.Println(Cyan + `
+████████╗ █████╗ █████╗ █████╗
+╚══██╔══╝██╔══██╗██╔══██╗██╔══██╗
+   ██║   ███████║███████║███████║
+   ██║   ██╔══██║╚════██║██╔══██║
+   ██║   ██║  ██║███████║██║  ██║
+   ╚═╝   ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝
+` + Reset)
+	fmt.Println(Cyan + "🌟 Welcome to LETTER QUEST 🌟" + Reset)
 }
 
-func displayTata2D() {
-	fmt.Println(`
-TTTTT     A       TTTTTTT     A
-  T     A A A        T      A A A
-  T    A A A A       T     A A A A
-  T   AAAAAAAAAA     T    AAAAAAAAAA
-  T   A        A     T    A         A
-`)
-}
-
-// ---------------- GAME LOGIC ----------------
 func generateSets() ([]rune, []int) {
 	letters := make([]rune, 26)
 	numbers := make([]int, 26)
@@ -95,33 +85,28 @@ func generateSets() ([]rune, []int) {
 	return letters, numbers
 }
 
-func shuffle[T any](s []T) {
-	rand.Shuffle(len(s), func(i, j int) {
-		s[i], s[j] = s[j], s[i]
+func shuffle[T any](slice []T) {
+	rand.Shuffle(len(slice), func(i, j int) {
+		slice[i], slice[j] = slice[j], slice[i]
 	})
 }
 
 func generateMasks(n int) []string {
-	maskSymbols := []string{"[M]", "[X]", "[#]", "[*]", "[%]", "[&]", "[@]", "[!]", "[?]", "[~]"}
+	symbols := []string{"[?]", "[#]", "[*]", "[!]", "[%]", "[@]", "[&]", "[~]"}
 	masks := make([]string, n)
 	for i := 0; i < n; i++ {
-		masks[i] = maskSymbols[rand.Intn(len(maskSymbols))]
+		masks[i] = symbols[rand.Intn(len(symbols))]
 	}
 	return masks
 }
 
 func playRound(player *Player, scanner *bufio.Scanner, letters []rune, numbers []int, masks []string) {
 	player.Games++
-	fmt.Println("\nSelect 5 numbers (1-26) separated by space:")
-	fmt.Print("Your choices: ")
-	if !scanner.Scan() {
-		fmt.Println("\nGame aborted.")
-		return
-	}
-
+	fmt.Print("Your selections: ")
+	scanner.Scan()
 	input := strings.Fields(scanner.Text())
 	if len(input) != selectionCount {
-		fmt.Println(Red + "You must select exactly 5 numbers!" + Reset)
+		fmt.Println(Red + "You must pick exactly 5 numbers!" + Reset)
 		return
 	}
 
@@ -136,7 +121,7 @@ func playRound(player *Player, scanner *bufio.Scanner, letters []rune, numbers [
 	}
 
 	correct := 0
-	fmt.Println("\nHidden masks revealed:")
+	fmt.Println("\n🔍 Revealing hidden letters:")
 	for i, letter := range letters {
 		num := numbers[i]
 		selected := false
@@ -157,28 +142,41 @@ func playRound(player *Player, scanner *bufio.Scanner, letters []rune, numbers [
 		}
 	}
 
-	score := correct * 10
-	player.Scores += score
+	// Base score: 10 points per correct number
+	roundScore := correct * 10
 
-	fmt.Printf("\nYou matched %d out of 5\n", correct)
-
-	// Rewards
-	if correct == 3 {
-		fmt.Println(Green + "You win! The ancestors smile upon you!" + Reset)
+	// If player wins (matches 3 or more), show mask, congratulate, multiply score
+	if correct >= 3 {
 		player.Wins++
-	} else if correct == 4 {
-		fmt.Println(Green + "Ancestral royalty blesses you!" + Reset)
-		fmt.Println(Yellow + "Wisdom: 'Knowledge is the bridge to power.'" + Reset)
-		player.Wins++
-	} else if correct == 5 {
-		fmt.Println(Green + "KINGS AND QUEENS! You are the right hand of the king!" + Reset)
-		player.Wins++
+		roundScore *= 5
+		fmt.Println(Green + "\n🎉 CONGRATULATIONS! You won this round!" + Reset)
+		displayAfricanMask()
 	}
 
-	// Special numbers reward
+	player.Scores += roundScore
+	fmt.Printf("\nYou matched %d out of 5 numbers\n", correct)
+	fmt.Printf("Round score: %d | Total score: %d\n", roundScore, player.Scores)
+
+	// Bonus for special numbers
 	for _, n := range selections {
-		if n == 5 || n == 10 || n == 15 || n == 20 || n == 25 || n == 26 {
-			fmt.Println(Cyan + "Royal blessing from African heroes!" + Reset)
+		if n%5 == 0 || n == 26 {
+			fmt.Println(Cyan + "✨ You received a royal blessing!" + Reset)
 		}
 	}
+}
+
+// African mask ASCII art
+func displayAfricanMask() {
+	mask := `
+   .-''''-.
+  /  .--.  \
+ /  /    \  \
+ |  |    |  |
+ |  |.-""-. |
+ ///`. + "`" + `::::.` + "`" + `\\\
+||| ::/  \:: ;|
+||| ::\__/:: ;|
+ \\\ '::::' ///
+  ` + "`" + `'-....-'`
+	fmt.Println(Yellow + mask + Reset)
 }
