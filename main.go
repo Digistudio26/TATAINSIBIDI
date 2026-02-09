@@ -46,11 +46,11 @@ func main() {
 	player := Player{Name: name}
 
 	for {
-		fmt.Println("\nMENU")
-		fmt.Println("1) Play round")
-		fmt.Println("2) View scores")
-		fmt.Println("3) Help / Instructions")
-		fmt.Println("4) Free try")
+		fmt.Println("\nMENU, Make your choice")
+		fmt.Println("1) Play round, start now")
+		fmt.Println("2) View scores, top points")
+		fmt.Println("3) Help / Instructions, how to play")
+		fmt.Println("4) Free try, get tips here")
 		fmt.Println("5) Exit")
 		fmt.Print("Enter choice (1-5): ")
 
@@ -68,24 +68,25 @@ func main() {
 			fmt.Println("\nFREE TRY ROUND")
 			playRound(&player, scanner)
 		case "5":
-			fmt.Println(Cyan + "Farewell, brave soul!" + Reset)
+			fmt.Println(Cyan + "Farewell, we will miss you, Brave soul!" + Reset)
 			return
 		default:
-			fmt.Println(Red + "Invalid choice. Enter 1-5." + Reset)
+			fmt.Println(Red + "Invalid choice. Choose from 1-5." + Reset)
 		}
 	}
 }
 
 func displayBanner() {
 	fmt.Println(Cyan + `
-████████╗ █████╗ █████╗ █████╗
-╚══██╔══╝██╔══██╗██╔══██╗██╔══██╗
-   ██║   ███████║███████║███████║
-   ██║   ██╔══██║╚════██║██╔══██║
-   ██║   ██║  ██║███████║██║  ██║
-   ╚═╝   ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝
+████████╗   █████╗    █████████╗    █████╗             ██████ ██   ██
+╚══██╔══╝  ██╔══██╗   ╚══██╔═══╝   ██╔══██╗           ██      ██   ██
+╚══██╔══╝  ██╔══██╗   ╚══██╔═══╝   ██╔══██╗          ██       ██   ██
+   ██║     ███████║      ██║       ███████║         ██        ████ ██
+   ██║     ██╔══██║      ██║       ██╔══██║          ██       ██   ██
+   ██║     ██║  ██║      ██║       ██║  ██║           ██      ██   ██
+   ╚═╝     ╚═╝  ╚═╝      ╚═╝       ╚═╝  ╚═╝            ██████ ██   ██
 ` + Reset)
-	fmt.Println(Cyan + "WELCOME TO LETTER QUEST" + Reset)
+	fmt.Println(Cyan + "WELCOME TO LETTER QUEST, TATA INSIBIDICODE" + Reset)
 }
 
 func showHelp() {
@@ -133,7 +134,7 @@ func playRound(player *Player, scanner *bufio.Scanner) {
 		for _, v := range input {
 			n, err := strconv.Atoi(v)
 			if err != nil || n < 1 || n > 26 {
-				fmt.Println(Red + "Invalid number entered." + Reset)
+				fmt.Println(Red + "Invalid number entered. SELECT 1-26." + Reset)
 				selections = nil
 				break
 			}
@@ -162,7 +163,7 @@ func playRound(player *Player, scanner *bufio.Scanner) {
 			deities[rand.Intn(len(deities))], player.Name)
 	} else {
 		player.Scores += score
-		fmt.Println(Red + "\nYou lose, try again!" + Reset)
+		fmt.Println(Red + "\nYou lose, try again! YOU CAN WIN" + Reset)
 	}
 
 	fmt.Printf("\nTotal matches: %d\n", totalCorrect)
